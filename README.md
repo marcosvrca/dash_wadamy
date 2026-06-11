@@ -19,6 +19,10 @@ wadamy/
 
 ## Dashboard local
 
+**Windows (recomendado):** duplo clique em `iniciar-dashboard.bat`
+
+Guia completo para o operador: [GUIA-COLEGA.md](GUIA-COLEGA.md)
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
