@@ -1,0 +1,40 @@
+name: Build Linux Binary
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "inventario.py"
+      - "requirements-agent.txt"
+      - ".github/workflows/build-linux.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller -r requirements-agent.txt
+
+      - name: Build executable
+        run: |
+          pyinstaller --onefile --name inventario --clean inventario.py
+          chmod +x dist/inventario
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventario-linux
+          path: dist/inventario
+          if-no-files-found: error

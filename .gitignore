@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.spec
+build/
+dist/
+inventario
+*.exe
+.env
+.venv/
+venv/
+dashboard/inventario.db
+*.db
+.DS_Store
+Thumbs.db

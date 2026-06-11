@@ -1,0 +1,68 @@
+name: Dashboard CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "dashboard/**"
+      - "requirements.txt"
+      - ".github/workflows/dashboard.yml"
+  pull_request:
+    paths:
+      - "dashboard/**"
+      - "requirements.txt"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate app import
+        run: python -c "from dashboard.app import app; print(app.name)"
+
+      - name: Smoke test API
+        run: |
+          python - <<'PY'
+          import json
+          from dashboard.app import app
+
+          client = app.test_client()
+
+          health = client.get("/health")
+          assert health.status_code == 200
+
+          payload = {
+              "hostname": "teste-ci",
+              "sistema": "Linux 6.0",
+              "cpu": "Test CPU",
+              "ram_gb": 16,
+              "ram_livre": 8,
+              "disco_gb": 256,
+              "disco_livre": 128,
+              "ip": "10.0.0.1",
+              "cores": 4,
+          }
+
+          resposta = client.post(
+              "/api/inventario",
+              data=json.dumps(payload),
+              content_type="application/json",
+          )
+          assert resposta.status_code == 201
+
+          lista = client.get("/api/maquinas")
+          assert lista.status_code == 200
+          assert any(m["hostname"] == "teste-ci" for m in lista.get_json())
+          PY
